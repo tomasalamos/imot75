@@ -1,22 +1,167 @@
-{% extends "layout.html" %}
+{% extends "base.html" %}
+
+{% block title %}Imot - Data Configuration{% endblock %}
 
 {% block content %}
-  <h1>Select Variables</h1>
-  <form action="/process" method="post">
-      <h3>Variables of Interest:</h3>
-      <div class="checkbox-group">
-        {% for var in variables %}
-            <label><input type="checkbox" name="variables" value="{{ var }}"> {{ var }}</label>
-        {% endfor %}
-      </div>
+<section class="section" style="padding-top: 4rem;">
+    <div class="container-large">
+        <div class="header-layout">
+            <div class="header-content">
+                <h1 class="heading extra-large">
+                    <span class="text-gradient-overlay">Configure Your Data</span>
+                </h1>
+                <div class="spacer-16"></div>
+                <p class="paragraph large">Select the variables to process and set the date range</p>
+            </div>
+        </div>
+    </div>
+</section>
 
-      <h3>Variables That Allow Negative Values:</h3>
-      <div class="checkbox-group">
-        {% for var in variables %}
-            <label><input type="checkbox" name="negative_variables" value="{{ var }}"> {{ var }}</label>
-        {% endfor %}
-      </div>
+<section class="section" style="margin-top: -14rem;">
+    <div class="container-large">
+        <div class="form-container">
+            <form method="POST" action="{{ url_for('process') }}" class="data-form">
+                <div class="form-section">
+                    <h2 class="heading medium">Select Variables</h2>
+                    <div class="spacer-16"></div>
+                    <div class="variables-grid">
+                        {% for variable in variables %}
+                        <div class="variable-item">
+                            <input type="checkbox" id="{{ variable }}" name="variables" value="{{ variable }}" class="variable-checkbox">
+                            <label for="{{ variable }}" class="variable-label">{{ variable }}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
 
-      <button type="submit" class="button button-yellow">Process</button>
-  </form>
+                <div class="form-section">
+                    <h2 class="heading medium">Variables Allowing Negative Values</h2>
+                    <div class="spacer-16"></div>
+                    <div class="variables-grid">
+                        {% for variable in variables %}
+                        <div class="variable-item">
+                            <input type="checkbox" id="neg_{{ variable }}" name="negative_variables" value="{{ variable }}" class="variable-checkbox">
+                            <label for="neg_{{ variable }}" class="variable-label">{{ variable }}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2 class="heading medium">Date Range</h2>
+                    <div class="spacer-16"></div>
+                    <div class="date-range">
+                        <div class="date-input">
+                            <label for="start_date">From:</label>
+                            <input type="datetime-local" id="start_date" name="start_date" value="{{ min_date }}" required>
+                        </div>
+                        <div class="date-input">
+                            <label for="end_date">To:</label>
+                            <input type="datetime-local" id="end_date" name="end_date" value="{{ max_date }}" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="button w-button">Process Data</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+{% block extra_scripts %}
+<style>
+.form-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.data-form {
+    background: #1a1a1a;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.form-section {
+    margin-bottom: 2.5rem;
+}
+
+.form-section h2 {
+    color: #fff;
+    margin-bottom: 0;
+}
+
+.variables-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.variable-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.variable-checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.variable-label {
+    color: #ccc;
+    cursor: pointer;
+}
+
+.date-range {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.date-input {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.date-input label {
+    color: #ccc;
+}
+
+.date-input input {
+    padding: 0.8rem;
+    border: 1px solid #333;
+    border-radius: 6px;
+    background: #222;
+    color: #fff;
+}
+
+.form-actions {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.button {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+}
+
+.button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+    .date-range {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}
+</style>
+{% endblock %}
 {% endblock %}

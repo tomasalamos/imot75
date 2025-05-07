@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>{% block title %}Imot{% endblock %}</title>
+    <meta content="Imot is a smart data correction platform designed to clean, validate, and enhance industrial datasets." name="description"/>
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
+    <link href="{{ url_for('static', filename='css/imot-c7b6f7.webflow.shared.41efbd680.css') }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ url_for('static', filename='css/flash-messages.css') }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ url_for('static', filename='images/favicon.png') }}" rel="shortcut icon" type="image/x-icon"/>
+    <link href="{{ url_for('static', filename='images/app-icon.png') }}" rel="apple-touch-icon"/>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <div data-animation="default" class="nav w-nav" data-easing2="ease" fs-scrolldisable-element="smart-nav" data-easing="ease" data-collapse="medium" role="banner" data-duration="400">
+        <div class="nav-container">
+            <div class="logo-wrapper">
+                <a href="/" class="logo w-nav-brand">
+                    <img src="{{ url_for('static', filename='images/logo_imot.png') }}" loading="lazy" width="88" height="50" alt="Imot Logo" srcset="{{ url_for('static', filename='images/logo_imot-p-500.png') }} 500w, {{ url_for('static', filename='images/logo_imot.png') }} 760w" sizes="88px"/>
+                </a>
+                <nav role="navigation" class="nav-menu w-nav-menu">
+                    <a href="{{ url_for('pricing') }}" class="nav-link w-nav-link">Pricing</a>
+                    <a href="{{ url_for('about') }}" class="nav-link w-nav-link">About</a>
+                    <a href="{{ url_for('contact') }}" class="nav-link w-nav-link">Contact</a>
+                </nav>
+            </div>
+            <div class="actions-wrapper">
+                <a href="{{ url_for('auth') }}" class="button small hide-mobile-portrait w-button">Get started</a>
+                <div class="nav-menu-button w-nav-button">
+                    <div class="menu-icon">
+                        <div class="menu-icon-line-top"></div>
+                        <div class="menu-icon-line-bottom"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+
+    <script src="{{ url_for('static', filename='js/jquery.js') }}" type="text/javascript"></script>
+    <script src="{{ url_for('static', filename='js/webflow.schunk.4a394eb5af8156f2.js') }}" type="text/javascript"></script>
+    <script src="{{ url_for('static', filename='js/webflow.schunk.d510238464dd0253.js') }}" type="text/javascript"></script>
+    <script src="{{ url_for('static', filename='js/webflow-script.js') }}" type="text/javascript"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html> 

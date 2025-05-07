@@ -5,10 +5,14 @@ import pandas as pd
 import numpy as np
 from datetime import datetime
 from functools import wraps
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from werkzeug.utils import secure_filename
 
 warnings.filterwarnings('ignore')
 
-app = Flask(__name__)
+app = Flask(__name__, 
+    static_url_path='',
+    static_folder='static')
 app.secret_key = 'supersecretkey123'  # Change to a secure key
 
 UPLOAD_FOLDER = 'upload'
@@ -16,6 +20,49 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'auth'
+
+class User(UserMixin):
+    def __init__(self, id):
+        self.id = id
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User(user_id)
+
+# ========================
+# Rutas principales
+# ========================
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/pricing')
+def pricing():
+    return render_template('pricing.html')
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+@app.route('/contact', methods=['GET', 'POST'])
+def contact():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        email = request.form.get('email')
+        subject = request.form.get('subject')
+        message = request.form.get('message')
+        
+        # Aquí podrías agregar la lógica para enviar el correo electrónico
+        # Por ahora solo mostraremos un mensaje de éxito
+        flash('¡Gracias por tu mensaje! Te contactaremos pronto.', 'success')
+        return redirect(url_for('contact'))
+    
+    return render_template('contact.html')
 
 # ========================
 # Login and authentication
@@ -52,15 +99,15 @@ def auth():
                 session['user'] = username
                 return redirect(url_for('upload'))
             else:
-                flash('Incorrect username or password', 'danger')
+                flash('Usuario o contraseña incorrectos', 'error')
 
         elif action == 'register':
             if username in users:
-                flash('User already exists', 'warning')
+                flash('El usuario ya existe', 'error')
             else:
                 users[username] = password
                 save_users(users)
-                flash('User registered successfully. You can now log in.', 'success')
+                flash('Usuario registrado exitosamente. Ahora puedes iniciar sesión.', 'success')
 
     return render_template('auth.html')
 
@@ -82,32 +129,72 @@ def login_required(f):
 # Protected routes
 # ========================
 
-@app.route('/')
+@app.route('/upload', methods=['GET', 'POST'])
 @login_required
 def upload():
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            flash('No file selected', 'error')
+            return redirect(request.url)
+            
+        file = request.files['file']
+        if file.filename == '':
+            flash('No file selected', 'error')
+            return redirect(request.url)
+
+        if not file.filename.endswith('.csv'):
+            flash('Please upload a CSV file', 'error')
+            return redirect(request.url)
+
+        try:
+            # Guardar el archivo con un nombre único
+            filename = secure_filename(file.filename)
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            unique_filename = f"{timestamp}_{filename}"
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
+            file.save(filepath)
+            
+            # Guardar el nombre del archivo en la sesión
+            session['uploaded_file'] = unique_filename
+            
+            # Verificar que el archivo sea válido
+            df = pd.read_csv(filepath)
+            if 'date' not in df.columns:
+                flash('CSV file must contain a "date" column', 'error')
+                return redirect(request.url)
+
+            df['date'] = pd.to_datetime(df['date'], errors='coerce')
+            df = df.dropna(subset=['date'])
+            
+            if len(df) == 0:
+                flash('No valid data found in the CSV file', 'error')
+                return redirect(request.url)
+
+            numeric_columns = df.select_dtypes(include=['float64', 'int64']).columns.tolist()
+            if not numeric_columns:
+                flash('No numeric columns found in the CSV file', 'error')
+                return redirect(request.url)
+
+            flash('File uploaded successfully', 'success')
+            return redirect(url_for('form'))
+
+        except Exception as e:
+            flash(f'Error processing file: {str(e)}', 'error')
+            return redirect(request.url)
+
     return render_template('upload.html')
 
-@app.route('/form', methods=['POST'])
+@app.route('/form', methods=['GET', 'POST'])
 @login_required
 def form():
-    if 'file' not in request.files:
-        flash('No file selected', 'error')
+    if 'uploaded_file' not in session:
+        flash('Please upload a file first', 'error')
         return redirect(url_for('upload'))
         
-    file = request.files['file']
-    if file.filename == '':
-        flash('No file selected', 'error')
-        return redirect(url_for('upload'))
-
-    if not file.filename.endswith('.csv'):
-        flash('Please upload a CSV file', 'error')
-        return redirect(url_for('upload'))
-
     try:
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], 'data.csv')
-        file.save(filepath)
-
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], session['uploaded_file'])
         df = pd.read_csv(filepath)
+        
         if 'date' not in df.columns:
             flash('CSV file must contain a "date" column', 'error')
             return redirect(url_for('upload'))
@@ -127,7 +214,6 @@ def form():
         min_date = df['date'].min().strftime('%Y-%m-%dT%H:%M:%S')
         max_date = df['date'].max().strftime('%Y-%m-%dT%H:%M:%S')
 
-        flash('File uploaded successfully', 'success')
         return render_template('form.html', variables=numeric_columns, min_date=min_date, max_date=max_date)
 
     except Exception as e:

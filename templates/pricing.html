@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block title %}Imot - Pricing{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container-large">
+        <div class="header-layout">
+            <div class="header-content">
+                <h1 class="heading extra-large">
+                    <span class="text-gradient-overlay">Simple Pricing</span>
+                </h1>
+                <div class="spacer-32"></div>
+                <p class="paragraph large">Choose the plan that best fits your needs</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container-large">
+        <div class="pricing-container">
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h2 class="heading medium">Starter</h2>
+                        <div class="price">Free</div>
+                        <p class="pricing-description">Unlimited users, perfect for teams of any size</p>
+                    </div>
+                    <div class="pricing-features">
+                        <ul class="feature-list">
+                            <li class="feature-item">
+                                <img src="{{ url_for('static', filename='images/check.svg') }}" alt="Check" class="feature-icon"/>
+                                <span>Basic data processing</span>
+                            </li>
+                            <li class="feature-item">
+                                <img src="{{ url_for('static', filename='images/check.svg') }}" alt="Check" class="feature-icon"/>
+                                <span>Error detection</span>
+                            </li>
+                            <li class="feature-item">
+                                <img src="{{ url_for('static', filename='images/check.svg') }}" alt="Check" class="feature-icon"/>
+                                <span>Standard support</span>
+                            </li>
+                            <li class="feature-item">
+                                <img src="{{ url_for('static', filename='images/check.svg') }}" alt="Check" class="feature-icon"/>
+                                <span>Unlimited users</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="pricing-action">
+                        <a href="{{ url_for('auth') }}" class="button w-button">Get Started</a>
+                    </div>
+                </div>
+
+                <div class="pricing-card featured">
+                    <div class="pricing-header">
+                        <h2 class="heading medium">Enterprise</h2>
+                        <div class="price">Custom</div>
+                        <p class="pricing-description">Personalized project advisory and support</p>
+                    </div>
+                    <div class="pricing-features">
+                        <ul class="feature-list">
+                            <li class="feature-item">
+                                <img src="{{ url_for('static', filename='images/check.svg') }}" alt="Check" class="feature-icon"/>
+                                <span>Everything in Starter Plan</span>
+                            </li>
+                            <li class="feature-item">
+                                <img src="{{ url_for('static', filename='images/check.svg') }}" alt="Check" class="feature-icon"/>
+                                <span>Custom solutions</span>
+                            </li>
+                            <li class="feature-item">
+                                <img src="{{ url_for('static', filename='images/check.svg') }}" alt="Check" class="feature-icon"/>
+                                <span>Priority support</span>
+                            </li>
+                            <li class="feature-item">
+                                <img src="{{ url_for('static', filename='images/check.svg') }}" alt="Check" class="feature-icon"/>
+                                <span>Project advisory</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="pricing-action">
+                        <a href="{{ url_for('contact') }}" class="button w-button">Contact Us</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% block extra_scripts %}
+<style>
+.pricing-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    align-items: start;
+}
+
+.pricing-card {
+    background: #1a1a1a;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.pricing-card.featured {
+    background: #222;
+    border: 2px solid #FFD700;
+}
+
+.pricing-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.pricing-header h2 {
+    color: #fff;
+    margin-bottom: 1rem;
+}
+
+.price {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #FFD700;
+    margin-bottom: 0.5rem;
+}
+
+.pricing-description {
+    color: #888;
+    font-size: 0.9rem;
+}
+
+.pricing-features {
+    margin-bottom: 2rem;
+}
+
+.feature-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+    color: #ccc;
+}
+
+.feature-icon {
+    width: 20px;
+    height: 20px;
+    opacity: 0.7;
+}
+
+.pricing-action {
+    text-align: center;
+}
+
+.button {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    width: 100%;
+    text-align: center;
+}
+
+.button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+    .pricing-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.value-card h3 {
+    color: #FFD700;
+    margin-bottom: 1rem;
+}
+</style>
+{% endblock %}
+{% endblock %}

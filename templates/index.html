@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Imot - Smart Data Refinement{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container-large">
+        <div class="header-layout">
+            <div class="header-content">
+                <h1 data-w-id="05c97b58-b1ac-eabe-afbc-3861dce3b03f" class="heading extra-large">
+                    <span class="text-gradient-overlay">Smart Data Refinement for Industrial Systems.<br/>‍<br/>Imot</span>
+                </h1>
+                <div class="spacer-32"></div>
+                <div class="spacer-32"></div>
+                <div class="button-group">
+                    <a data-w-id="05c97b58-b1ac-eabe-afbc-3861dce3b045" href="{{ url_for('auth') }}" class="button w-button">Get started</a>
+                    <a href="#learn-more" data-w-id="05c97b58-b1ac-eabe-afbc-3861dce3b047" class="button-secondary w-button">Learn more</a>
+                </div>
+            </div>
+            <div class="image-wrapper">
+                <img class="hero-image" src="{{ url_for('static', filename='images/torch-product-image-1.avif') }}" alt="Product image" loading="lazy"/>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div id="learn-more" class="container-large">
+        <h2 class="heading large">
+            <span class="text-gradient-overlay">From Errors to Insight<br/>Detect - Correct - Decide</span>
+        </h2>
+        <div class="spacer-80"></div>
+        <div class="w-layout-grid card-list">
+            <div class="card-item">
+                <img src="{{ url_for('static', filename='images/layout-dashboard.svg') }}" loading="lazy" alt="Dashboard icon" class="icon-large"/>
+                <div class="spacer-128"></div>
+                <h3 class="heading medium">Effortless &amp; Fast</h3>
+                <div class="spacer-16"></div>
+                <p class="paragraph">Filter, improve, and download your data instantly — all from an intuitive web interface. No technical skills required. Just click, explore, and act.</p>
+            </div>
+            <div class="card-item">
+                <img src="{{ url_for('static', filename='images/radar.svg') }}" loading="lazy" alt="Radar icon" class="icon-large"/>
+                <div class="spacer-32"></div>
+                <h3 class="heading medium">Error Detection &amp; Alerts</h3>
+                <div class="spacer-16"></div>
+                <p class="paragraph">Automatically spot anomalies, missing dates, and unusual variable behavior. Receive alerts and fix issues without writing a single line of code.</p>
+            </div>
+            <div class="card-item">
+                <img src="{{ url_for('static', filename='images/wand-sparkles.svg') }}" loading="lazy" alt="Magic icon" class="icon-large"/>
+                <div class="spacer-128"></div>
+                <h3 class="heading medium">One-Click Reports</h3>
+                <div class="spacer-16"></div>
+                <p class="paragraph">Export simplified reports in seconds. Whether it's a quick PDF or a data summary, streamline decision-making and share with your team effortlessly.</p>
+            </div>
+            <div class="card-item">
+                <img src="{{ url_for('static', filename='images/mouse-pointer-click.svg') }}" loading="lazy" alt="Mouse icon" class="icon-large"/>
+                <div class="spacer-32"></div>
+                <h3 class="heading medium">Privacy by Design</h3>
+                <div class="spacer-16"></div>
+                <p class="paragraph">Your data stays yours. The platform doesn't store any information, ensuring full transparency, privacy, and ethical handling at all times.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div>
+    <div class="w-layout-vflex flex-block">
+        <h1 class="heading-2"><br/>Basic example</h1>
+        <p class="paragraph-2"><br/>‍</p>
+        <img src="{{ url_for('static', filename='images/extem.png') }}" loading="lazy" width="Auto" sizes="(max-width: 695px) 100vw, 695px" alt="" srcset="{{ url_for('static', filename='images/extem-p-500.png') }} 500w, {{ url_for('static', filename='images/extem.png') }} 695w" class="image"/>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container-small">
+        <div class="w-layout-grid faq-wrapper">
+            <div class="faq-content">
+                <h2><span class="text-gradient-overlay">FAQs</span></h2>
+                <div class="spacer-24"></div>
+                <p class="paragraph large">Answers to questions you might have about Imot.</p>
+            </div>
+            <div class="w-layout-grid faq-list">
+                <div class="faq-accordion">
+                    <div data-w-id="ec766c24-12b7-b94d-ff49-9f5d83ef1eb9" class="faq-question">
+                        <h3 class="heading regular">What does Imot do?</h3>
+                        <img src="{{ url_for('static', filename='images/plus.svg') }}" loading="lazy" alt="Plus icon" class="faq-icon"/>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Imot is a smart data correction platform designed to clean, validate, and enhance industrial datasets. It helps teams eliminate noise, detect anomalies, and ensure data integrity for accurate analysis and decision-making.</p>
+                        <div class="spacer-40"></div>
+                    </div>
+                </div>
+                <div class="faq-accordion">
+                    <div data-w-id="54dd60b7-6fa8-ef93-355b-a321568ed0f3" class="faq-question">
+                        <h3 class="heading regular">Who is Imot for?</h3>
+                        <img src="{{ url_for('static', filename='images/plus.svg') }}" loading="lazy" alt="Plus icon" class="faq-icon"/>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Imot is ideal for industrial companies, equipment operators, and data analysts who need to ensure the accuracy and reliability of their machine data.It's built for teams focused on optimizing operational efficiency by filtering, correcting, and analyzing equipment sensor data — helping prevent unplanned downtime, detect anomalies, and improve performance with confidence.</p>
+                        <div class="spacer-40"></div>
+                    </div>
+                </div>
+                <div class="faq-accordion">
+                    <div data-w-id="8ab634aa-24ca-0337-fd94-c3fe5e0a7e59" class="faq-question">
+                        <h3 class="heading regular">How secure is my data on Imot?</h3>
+                        <img src="{{ url_for('static', filename='images/plus.svg') }}" loading="lazy" alt="Plus icon" class="faq-icon"/>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Security is our top priority. Imot processes all data locally in your browser, ensuring that sensitive information never leaves your device. No data is stored on our servers, keeping the platform completely secure and private. Additionally, we implement robust encryption methods for all communications and conduct regular security audits to ensure your data is protected at all times. To further enhance security, Imot offers role-based access control, allowing you to manage permissions within your team</p>
+                        <div class="spacer-40"></div>
+                    </div>
+                </div>
+                <div class="faq-accordion">
+                    <div class="faq-answer"></div>
+                </div>
+                <div class="faq-accordion">
+                    <div data-w-id="ee4ae58f-1cc5-15cd-2792-90620b0aa16a" class="faq-question">
+                        <h3 class="heading regular">Is Imot easy to use if you're not technical?</h3>
+                        <img src="{{ url_for('static', filename='images/plus.svg') }}" loading="lazy" alt="Plus icon" class="faq-icon"/>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Absolutely! Imot's interface is user-friendly and intuitive, designed for both technical and non-technical users. You can generate results without any coding knowledge. Just follow the septs!</p>
+                        <div class="spacer-40"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section is-relative">
+    <div class="cta-card-content">
+        <div class="text-box">
+            <div>
+                <h2 class="heading extra-large">Ready to get started?</h2>
+            </div>
+            <div class="spacer-16"></div>
+            <div class="paragraph extra-large">Take the first step</div>
+        </div>
+        <div class="spacer-32"></div>
+        <a href="{{ url_for('auth') }}" class="button w-button">Get started</a>
+    </div>
+    <div class="gradient-image"></div>
+</section>
+{% endblock %}

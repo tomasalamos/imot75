@@ -1,57 +1,215 @@
-{% extends "layout.html" %}
+{% extends "base.html" %}
+
+{% block title %}Imot - Processing Results{% endblock %}
 
 {% block content %}
-  <div class="file-box yellow">
-    <h2>Data Processing Results</h2>
-    <p><strong>Selected variables:</strong></p>
-    <ul>
-        {% for var in selected_vars %}
-            <li>{{ var }}</li>
-        {% endfor %}
-    </ul>
-
-    <p><strong>Allowed negative variables:</strong></p>
-    <ul>
-        {% for var in negative_vars %}
-            <li>{{ var }}</li>
-        {% endfor %}
-    </ul>
-
-    <p><strong>Date range analyzed:</strong> {{ start }} - {{ end }}</p>
-  </div>
-
-  <div class="file-box yellow">
-    <h3>Generated files</h3>
-    <div class="file-grid">
-
-      <div class="file-item">
-        <a href="{{ url_for('download_file', filename='filtered_data.csv') }}" class="button button-gray">Filtered data</a>
-        <p>Records with invalid columns and negative values not allowed removed.</p>
-      </div>
-
-      <div class="file-item">
-        <a href="{{ url_for('download_file', filename='complete_data.csv') }}" class="button button-blue">Complete data</a>
-        <p>Data with completed dates and temporal integrity ensured.</p>
-      </div>
-
-      <div class="file-item">
-        <a href="{{ url_for('download_file', filename='missing_dates.txt') }}" class="button button-purple">Missing dates</a>
-        <p>Dates identified as missing in the original set.</p>
-      </div>
-
-      <div class="file-item">
-        <a href="{{ url_for('download_file', filename='corrected_data.csv') }}" class="button button-green">Corrected data</a>
-        <p>Clean and final version with imputed values and no errors.</p>
-      </div>
-
-      <div class="file-item">
-        <a href="{{ url_for('download_file', filename='detected_failures.csv') }}" class="button button-red">Detected failures</a>
-        <p>Errors or failures found during automatic analysis.</p>
-      </div>
-
+<section class="section" style="padding-top: 4rem;">
+    <div class="container-large">
+        <div class="header-layout">
+            <div class="header-content">
+                <h1 class="heading extra-large">
+                    <span class="text-gradient-overlay">Processing Results</span>
+                </h1>
+                <div class="spacer-32"></div>
+                <p class="paragraph large">Your data has been successfully processed</p>
+            </div>
+        </div>
     </div>
-  </div>
+</section>
 
-  <a href="/" class="button button-yellow">Back to the beginning</a>
+<section class="section" style="margin-top: -12rem;">
+    <div class="container-large">
+        <div class="results-container">
+            <div class="results-box">
+                <div class="results-section">
+                    <h2 class="heading medium">Processing Summary</h2>
+                    <div class="results-grid">
+                        <div class="result-item">
+                            <h3 class="heading small">Processed Variables</h3>
+                            <ul class="result-list">
+                                {% for var in selected_vars %}
+                                <li>{{ var }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div class="result-item">
+                            <h3 class="heading small">Variables Allowing Negative Values</h3>
+                            <ul class="result-list">
+                                {% for var in negative_vars %}
+                                <li>{{ var }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div class="result-item">
+                            <h3 class="heading small">Data Period</h3>
+                            <p class="paragraph">From: {{ start }}</p>
+                            <p class="paragraph">To: {{ end }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="results-section">
+                    <h2 class="heading medium">Generated Files</h2>
+                    <div class="download-grid">
+                        <div class="download-item">
+                            <a href="{{ url_for('download_file', filename='filtered_data.csv') }}" class="download-link">
+                                <img src="{{ url_for('static', filename='images/chart-spline.svg') }}" loading="lazy" alt="Download icon" class="download-icon"/>
+                                <span>Filtered Data</span>
+                            </a>
+                            <p class="download-description">Records with invalid columns and negative values not allowed removed.</p>
+                        </div>
+                        <div class="download-item">
+                            <a href="{{ url_for('download_file', filename='complete_data.csv') }}" class="download-link">
+                                <img src="{{ url_for('static', filename='images/chart-spline.svg') }}" loading="lazy" alt="Download icon" class="download-icon"/>
+                                <span>Complete Data</span>
+                            </a>
+                            <p class="download-description">Data with completed dates and temporal integrity ensured.</p>
+                        </div>
+                        <div class="download-item">
+                            <a href="{{ url_for('download_file', filename='corrected_data.csv') }}" class="download-link">
+                                <img src="{{ url_for('static', filename='images/chart-spline.svg') }}" loading="lazy" alt="Download icon" class="download-icon"/>
+                                <span>Corrected Data</span>
+                            </a>
+                            <p class="download-description">Clean and final version with imputed values and no errors.</p>
+                        </div>
+                        <div class="download-item">
+                            <a href="{{ url_for('download_file', filename='detected_failures.csv') }}" class="download-link">
+                                <img src="{{ url_for('static', filename='images/chart-spline.svg') }}" loading="lazy" alt="Download icon" class="download-icon"/>
+                                <span>Detected Failures</span>
+                            </a>
+                            <p class="download-description">Errors or failures found during automatic analysis.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a href="{{ url_for('upload') }}" class="button w-button secondary">Process Another File</a>
+                    <a href="{{ url_for('index') }}" class="button w-button">Back to Home</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% block extra_scripts %}
+<style>
+.results-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.results-box {
+    background: #1a1a1a;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.results-section {
+    margin-bottom: 2rem;
+}
+
+.results-section h2 {
+    margin-bottom: 1.5rem;
+    color: #fff;
+}
+
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.result-item {
+    background: #222;
+    padding: 1.5rem;
+    border-radius: 8px;
+}
+
+.result-item h3 {
+    margin-bottom: 1rem;
+    color: #FFC44D;
+}
+
+.result-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.result-list li {
+    color: #ccc;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.download-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.download-item {
+    background: #222;
+    padding: 1.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.download-item:hover {
+    background: #2a2a2a;
+    transform: translateY(-2px);
+}
+
+.download-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: #fff;
+    text-decoration: none;
+    margin-bottom: 0.8rem;
+}
+
+.download-icon {
+    width: 24px;
+    height: 24px;
+    opacity: 0.7;
+}
+
+.download-description {
+    color: #888;
+    font-size: 0.9rem;
+    margin: 0;
+    padding-left: 2.5rem;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+    gap: 1rem;
+}
+
+.button {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+}
+
+.button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.button.secondary {
+    background: #333;
+    color: #fff;
+}
+
+.button.secondary:hover {
+    background: #444;
+}
+</style>
+{% endblock %}
 {% endblock %}
 
