@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+
+{% block content %}
+  <h1>Select Variables</h1>
+  <form action="/process" method="post">
+      <h3>Variables of Interest:</h3>
+      <div class="checkbox-group">
+        {% for var in variables %}
+            <label><input type="checkbox" name="variables" value="{{ var }}"> {{ var }}</label>
+        {% endfor %}
+      </div>
+
+      <h3>Variables That Allow Negative Values:</h3>
+      <div class="checkbox-group">
+        {% for var in variables %}
+            <label><input type="checkbox" name="negative_variables" value="{{ var }}"> {{ var }}</label>
+        {% endfor %}
+      </div>
+
+      <button type="submit" class="button button-yellow">Process</button>
+  </form>
+{% endblock %}

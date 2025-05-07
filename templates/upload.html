@@ -1,0 +1,131 @@
+{% extends "layout.html" %}
+
+{% block content %}
+  <h1>Upload CSV File</h1>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <form action="{{ url_for('form') }}" method="post" enctype="multipart/form-data" class="file-upload-form">
+      <div class="file-box">
+          <label for="file-upload" class="button button-yellow choose-file-btn">
+              Choose File
+          </label>
+          <input id="file-upload" type="file" name="file" accept=".csv" required>
+          <span id="file-name">No file selected</span>
+      </div>
+      <div class="upload-info">
+          <p>Please upload a CSV file with the following requirements:</p>
+          <ul>
+              <li>Must contain a "date" column</li>
+              <li>Must contain at least one numeric column</li>
+              <li>Dates must be in a valid format (YYYY-MM-DD HH:MM:SS)</li>
+          </ul>
+      </div>
+      <button type="submit" class="button button-yellow">Upload and Continue</button>
+  </form>
+
+  <script>
+    const input = document.getElementById('file-upload');
+    const fileNameDisplay = document.getElementById('file-name');
+
+    input.addEventListener('change', function() {
+      const file = input.files[0];
+      if (file) {
+        if (!file.name.endsWith('.csv')) {
+          alert('Please select a CSV file');
+          input.value = '';
+          fileNameDisplay.textContent = 'No file selected';
+          return;
+        }
+        fileNameDisplay.textContent = file.name;
+      } else {
+        fileNameDisplay.textContent = 'No file selected';
+      }
+    });
+  </script>
+
+  <style>
+    .file-upload-form {
+      max-width: 600px;
+      margin: 2rem auto;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .file-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+      background-color: #222;
+      padding: 2rem;
+      border-radius: 4px;
+    }
+
+    .choose-file-btn {
+      font-size: 1.2rem;
+      padding: 1rem 2rem;
+      min-width: 200px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .choose-file-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(245, 166, 35, 0.3);
+    }
+
+    #file-name {
+      color: #ccc;
+      font-style: italic;
+      font-size: 1.1rem;
+    }
+
+    .upload-info {
+      background-color: #222;
+      padding: 1.5rem;
+      border-radius: 4px;
+      margin-bottom: 1.5rem;
+    }
+
+    .upload-info p {
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+    }
+
+    .upload-info ul {
+      margin: 0;
+      padding-left: 1.5rem;
+      color: #ccc;
+    }
+
+    .upload-info li {
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+    }
+
+    .button {
+      padding: 0.8rem 1.5rem;
+      font-size: 1.1rem;
+      font-weight: 500;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+    }
+  </style>
+{% endblock %}
