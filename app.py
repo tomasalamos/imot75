@@ -223,47 +223,56 @@ def form():
 @app.route('/process', methods=['POST'])
 @login_required
 def process():
-    filepath = os.path.join(app.config['UPLOAD_FOLDER'], 'data.csv')
-    df = pd.read_csv(filepath)
-    df['date'] = pd.to_datetime(df['date'], errors='coerce')
-    df = df.dropna(subset=['date'])
+    if 'uploaded_file' not in session:
+        flash('Please upload a file first', 'error')
+        return redirect(url_for('upload'))
+        
+    try:
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], session['uploaded_file'])
+        df = pd.read_csv(filepath)
+        df['date'] = pd.to_datetime(df['date'], errors='coerce')
+        df = df.dropna(subset=['date'])
 
-    selected_vars = request.form.getlist('variables')
-    negative_vars = request.form.getlist('negative_variables')
+        selected_vars = request.form.getlist('variables')
+        negative_vars = request.form.getlist('negative_variables')
 
-    df_filtered = df.sort_values('date')
-    df_to_save = df_filtered[['date'] + selected_vars]
+        df_filtered = df.sort_values('date')
+        df_to_save = df_filtered[['date'] + selected_vars]
 
-    df_to_save_copy = df_to_save.copy()
-    df_to_save_copy['date'] = df_to_save_copy['date'].dt.strftime('%Y-%m-%d %H:%M:%S')
-    df_to_save_copy.to_csv(os.path.join(app.config['UPLOAD_FOLDER'], 'filtered_data.csv'), index=False)
+        df_to_save_copy = df_to_save.copy()
+        df_to_save_copy['date'] = df_to_save_copy['date'].dt.strftime('%Y-%m-%d %H:%M:%S')
+        df_to_save_copy.to_csv(os.path.join(app.config['UPLOAD_FOLDER'], 'filtered_data.csv'), index=False)
 
-    # Save negative variables to text file
-    with open(os.path.join(app.config['UPLOAD_FOLDER'], 'negative_variables.txt'), 'w') as f:
-        for var in negative_vars:
-            f.write(f"{var}\n")
+        # Save negative variables to text file
+        with open(os.path.join(app.config['UPLOAD_FOLDER'], 'negative_variables.txt'), 'w') as f:
+            for var in negative_vars:
+                f.write(f"{var}\n")
 
-    complete_data, missing_dates = complete_missing_data(df_to_save, selected_vars)
-    complete_data['date'] = pd.to_datetime(complete_data['date']).dt.strftime('%Y-%m-%d %H:%M:%S')
-    complete_data.to_csv(os.path.join(app.config['UPLOAD_FOLDER'], 'complete_data.csv'), index=False)
+        complete_data, missing_dates = complete_missing_data(df_to_save, selected_vars)
+        complete_data['date'] = pd.to_datetime(complete_data['date']).dt.strftime('%Y-%m-%d %H:%M:%S')
+        complete_data.to_csv(os.path.join(app.config['UPLOAD_FOLDER'], 'complete_data.csv'), index=False)
 
-    with open(os.path.join(app.config['UPLOAD_FOLDER'], 'missing_dates.txt'), 'w') as f:
-        for date in missing_dates:
-            f.write(f"{date}\n")
+        with open(os.path.join(app.config['UPLOAD_FOLDER'], 'missing_dates.txt'), 'w') as f:
+            for date in missing_dates:
+                f.write(f"{date}\n")
 
-    corrected_df, detected_failures = detect_and_correct_failures(complete_data.copy(), selected_vars, negative_vars)
-    corrected_df.to_csv(os.path.join(app.config['UPLOAD_FOLDER'], 'corrected_data.csv'), index=False)
+        corrected_df, detected_failures = detect_and_correct_failures(complete_data.copy(), selected_vars, negative_vars)
+        corrected_df.to_csv(os.path.join(app.config['UPLOAD_FOLDER'], 'corrected_data.csv'), index=False)
 
-    with open(os.path.join(app.config['UPLOAD_FOLDER'], 'detected_failures.csv'), 'w') as f:
-        f.write('date,variable,original_value,expected_value,error_type\n')
-        for failure in detected_failures:
-            f.write(f"{failure['date']},{failure['variable']},{failure['original_value']},{failure['expected_value']},{failure['error_type']}\n")
+        with open(os.path.join(app.config['UPLOAD_FOLDER'], 'detected_failures.csv'), 'w') as f:
+            f.write('date,variable,original_value,expected_value,error_type\n')
+            for failure in detected_failures:
+                f.write(f"{failure['date']},{failure['variable']},{failure['original_value']},{failure['expected_value']},{failure['error_type']}\n")
 
-    return render_template('results.html',
+        return render_template('results.html',
                            selected_vars=selected_vars,
                            negative_vars=negative_vars,
                            start=df['date'].min().strftime('%Y-%m-%d %H:%M:%S'),
                            end=df['date'].max().strftime('%Y-%m-%d %H:%M:%S'))
+                           
+    except Exception as e:
+        flash(f'Error processing file: {str(e)}', 'error')
+        return redirect(url_for('form'))
 
 def complete_missing_data(df_filtered, measurement_columns):
     df_filtered = df_filtered.copy()
