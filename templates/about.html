@@ -22,12 +22,12 @@
         <div class="about-container">
             <div class="about-section">
                 <div class="about-content">
-                    <h2 class="heading medium">Our Story</h2>
-                    <p class="paragraph">Imot was born from a simple observation: industrial data processing needed to be smarter, more efficient, and more accessible. We saw companies struggling with complex data analysis, spending countless hours on manual processing, and missing critical insights.</p>
-                    <p class="paragraph">Our mission is to revolutionize how industries handle their data. We combine cutting-edge technology with deep industry knowledge to create solutions that are not just powerful, but also intuitive and easy to use.</p>
+                    <h2 class="heading large">Our Story</h2>
+                    <p class="paragraph large">Imot was born from a simple observation: industrial data processing needed to be smarter, more efficient, and more accessible. We saw companies struggling with complex data analysis, spending countless hours on manual processing, and missing critical insights.</p>
+                    <p class="paragraph large">Our mission is to revolutionize how industries handle their data. We combine cutting-edge technology with deep industry knowledge to create solutions that are not just powerful, but also intuitive and easy to use.</p>
                 </div>
                 <div class="about-image">
-                    <img src="{{ url_for('static', filename='images/torch-product-image-1.avif') }}" alt="Our Story" class="rounded-image"/>
+                    <img src="{{ url_for('static', filename='images/torch-product-image-2.avif') }}" alt="Our Story" class="rounded-image"/>
                 </div>
             </div>
 
@@ -56,7 +56,7 @@
                 <h2 class="heading medium">Our Team</h2>
                 <div class="team-grid">
                     <div class="team-card">
-                        <img src="{{ url_for('static', filename='images/torch-product-image-1.avif') }}" alt="Tomás Alamos" class="team-image"/>
+                        <img src="{{ url_for('static', filename='images/torch-product-image-3.avif') }}" alt="Tomás Alamos" class="team-image"/>
                         <h3 class="heading small">Tomás Alamos</h3>
                         <p class="team-role">Founder & CEO</p>
                         <p class="paragraph">Industrial Engineer from Universidad Católica de Chile with experience in data analysis for heavy machinery.</p>
@@ -104,7 +104,7 @@
 
 .values-section h2 {
     text-align: center;
-    margin-bottom: 4rem;
+    margin-bottom: 3rem;
 }
 
 .values-grid {
@@ -144,7 +144,7 @@
 
 .team-section h2 {
     text-align: center;
-    margin-bottom: 4rem;
+    margin-bottom: 3rem;
 }
 
 .team-grid {
@@ -206,6 +206,15 @@
         grid-template-columns: 1fr;
         gap: 2rem;
     }
+}
+
+.about-content h2 {
+    margin-bottom: 1.5rem;
+}
+
+.about-content .paragraph {
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
 }
 </style>
 {% endblock %}

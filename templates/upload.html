@@ -130,21 +130,21 @@
 
 .requirements-list li {
     margin-bottom: 0.5rem;
-    padding-left: 1;
+    padding-left: 0;
     position: relative;
     display: flex;
     align-items: center;
     gap: 0.5rem;
 }
 
+.requirements-list li:before {
+    content: none;
+}
+
 .requirement-icon {
     width: 20px;
     height: 20px;
     filter: invert(80%) sepia(50%) saturate(500%) hue-rotate(358deg) brightness(103%) contrast(101%);
-}
-
-.requirements-list li:before {
-    content: none;
 }
 
 .button {
