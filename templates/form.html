@@ -41,11 +41,15 @@
                 <div class="form-section">
                     <h2 class="heading medium">Variables Allowing Negative Values</h2>
                     <div class="spacer-16"></div>
+                    <p class="paragraph" style="color: #ccc; margin-bottom: 1rem;">Select variables that should allow negative values based on their current data distribution:</p>
                     <div class="variables-grid">
-                        {% for variable in variables %}
+                        {% for variable, percentage in negative_vars.items() %}
                         <div class="variable-item">
                             <input type="checkbox" id="neg_{{ variable }}" name="negative_variables" value="{{ variable }}" class="variable-checkbox">
-                            <label for="neg_{{ variable }}" class="variable-label">{{ variable }}</label>
+                            <label for="neg_{{ variable }}" class="variable-label">
+                                {{ variable }}
+                                <span style="color: #FFC44D; font-size: 0.9em;">({{ "%.1f"|format(percentage) }}% negativos)</span>
+                            </label>
                         </div>
                         {% endfor %}
                     </div>

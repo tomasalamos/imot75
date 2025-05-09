@@ -184,6 +184,17 @@ def upload():
 
     return render_template('upload.html')
 
+def calculate_negative_percentages(df):
+    negative_vars = {}
+    for column in df.select_dtypes(include=['float64', 'int64']).columns:
+        negative_count = (df[column] < 0).sum()
+        total_count = df[column].count()
+        if total_count > 0:
+            percentage = (negative_count / total_count) * 100
+            if percentage > 0:
+                negative_vars[column] = percentage
+    return negative_vars
+
 @app.route('/form', methods=['GET', 'POST'])
 @login_required
 def form():
@@ -213,8 +224,15 @@ def form():
 
         min_date = df['date'].min().strftime('%Y-%m-%dT%H:%M:%S')
         max_date = df['date'].max().strftime('%Y-%m-%dT%H:%M:%S')
+        
+        # Calcular variables con valores negativos
+        negative_vars = calculate_negative_percentages(df)
 
-        return render_template('form.html', variables=numeric_columns, min_date=min_date, max_date=max_date)
+        return render_template('form.html', 
+                             variables=numeric_columns, 
+                             negative_vars=negative_vars,
+                             min_date=min_date, 
+                             max_date=max_date)
 
     except Exception as e:
         flash(f'Error processing file: {str(e)}', 'error')
