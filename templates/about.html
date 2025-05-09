@@ -3,7 +3,7 @@
 {% block title %}Imot - About Us{% endblock %}
 
 {% block content %}
-<section class="section">
+<section class="section" style="padding-top: 4rem;">
     <div class="container-large">
         <div class="header-layout">
             <div class="header-content">
@@ -17,7 +17,7 @@
     </div>
 </section>
 
-<section class="section">
+<section class="section" style="margin-top: -10rem;">
     <div class="container-large">
         <div class="about-container">
             <div class="about-section">
@@ -27,7 +27,7 @@
                     <p class="paragraph">Our mission is to revolutionize how industries handle their data. We combine cutting-edge technology with deep industry knowledge to create solutions that are not just powerful, but also intuitive and easy to use.</p>
                 </div>
                 <div class="about-image">
-                    <img src="{{ url_for('static', filename='images/about-story.jpg') }}" alt="Our Story" class="rounded-image"/>
+                    <img src="{{ url_for('static', filename='images/torch-product-image-1.avif') }}" alt="Our Story" class="rounded-image"/>
                 </div>
             </div>
 
@@ -35,7 +35,7 @@
                 <h2 class="heading medium">Our Values</h2>
                 <div class="values-grid">
                     <div class="value-card">
-                        <img src="{{ url_for('static', filename='images/shield.svg') }}" alt="Security" class="value-icon"/>
+                        <img src="{{ url_for('static', filename='images/mouse-pointer-click.svg') }}" alt="Security" class="value-icon"/>
                         <h3 class="heading small">Security First</h3>
                         <p class="paragraph">We prioritize the security and confidentiality of your data, implementing industry-leading protection measures.</p>
                     </div>
@@ -45,7 +45,7 @@
                         <p class="paragraph">We constantly evolve our solutions to stay ahead of industry needs and technological advancements.</p>
                     </div>
                     <div class="value-card">
-                        <img src="{{ url_for('static', filename='images/chart.svg') }}" alt="Simplicity" class="value-icon"/>
+                        <img src="{{ url_for('static', filename='images/layout-dashboard.svg') }}" alt="Simplicity" class="value-icon"/>
                         <h3 class="heading small">Simplicity</h3>
                         <p class="paragraph">We believe in making complex processes simple and accessible to everyone.</p>
                     </div>
@@ -56,10 +56,10 @@
                 <h2 class="heading medium">Our Team</h2>
                 <div class="team-grid">
                     <div class="team-card">
-                        <img src="{{ url_for('static', filename='images/team-1.jpg') }}" alt="Tomás Alamos" class="team-image"/>
+                        <img src="{{ url_for('static', filename='images/torch-product-image-1.avif') }}" alt="Tomás Alamos" class="team-image"/>
                         <h3 class="heading small">Tomás Alamos</h3>
                         <p class="team-role">Founder & CEO</p>
-                        <p class="paragraph">Industrial Engineer with experience in data analysis for heavy machinery.</p>
+                        <p class="paragraph">Industrial Engineer from Universidad Católica de Chile with experience in data analysis for heavy machinery.</p>
                     </div>
                 </div>
             </div>
@@ -104,7 +104,7 @@
 
 .values-section h2 {
     text-align: center;
-    margin-bottom: 3rem;
+    margin-bottom: 4rem;
 }
 
 .values-grid {
@@ -134,7 +134,7 @@
 }
 
 .value-card h3 {
-    color: #FFD700;
+    color: #FFC44D;
     margin-bottom: 1rem;
 }
 
@@ -144,7 +144,7 @@
 
 .team-section h2 {
     text-align: center;
-    margin-bottom: 3rem;
+    margin-bottom: 4rem;
 }
 
 .team-grid {
@@ -154,6 +154,16 @@
     justify-items: center;
 }
 
+.team-image {
+    width: 100%;
+    height: 320px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 4px solid #FFC44D;
+    padding: 4px;
+    background-color: #1a1a1a;
+}
+
 .team-card {
     background: #1a1a1a;
     border-radius: 12px;
@@ -161,6 +171,10 @@
     width: 100%;
     max-width: 320px;
     transition: all 0.3s ease;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .team-card:hover {
@@ -168,26 +182,23 @@
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
-.team-image {
-    width: 100%;
-    height: 320px;
-    object-fit: cover;
-}
-
 .team-card h3 {
     color: #fff;
-    margin: 1.5rem 1.5rem 0.5rem;
+    margin: 1.5rem 0 0.5rem;
+    text-align: center;
 }
 
 .team-role {
-    color: #FFD700;
-    margin: 0 1.5rem 1rem;
+    color: #FFC44D;
+    margin: 0 0 1rem;
     font-size: 0.9rem;
+    text-align: center;
 }
 
 .team-card .paragraph {
-    margin: 0 1.5rem 1.5rem;
+    margin: 0 0 1.5rem;
     color: #ccc;
+    text-align: center;
 }
 
 @media (max-width: 768px) {

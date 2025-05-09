@@ -25,6 +25,10 @@
                     <h2 class="heading medium">Select Variables</h2>
                     <div class="spacer-16"></div>
                     <div class="variables-grid">
+                        <div class="variable-item">
+                            <input type="checkbox" id="select-all" class="variable-checkbox"/>
+                            <label for="select-all" class="variable-label" style="color: #FFC44D; font-weight: 500;">Select All</label>
+                        </div>
                         {% for variable in variables %}
                         <div class="variable-item">
                             <input type="checkbox" id="{{ variable }}" name="variables" value="{{ variable }}" class="variable-checkbox">
@@ -163,5 +167,48 @@
     }
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Select All functionality
+    const selectAllCheckbox = document.getElementById('select-all');
+    const variableCheckboxes = document.querySelectorAll('input[name="variables"]');
+
+    selectAllCheckbox.addEventListener('change', function() {
+        variableCheckboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+    });
+
+    // Update Select All when individual checkboxes change
+    variableCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const allChecked = Array.from(variableCheckboxes).every(cb => cb.checked);
+            selectAllCheckbox.checked = allChecked;
+        });
+    });
+
+    // Form submission
+    const form = document.getElementById('process-form');
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const selectedVariables = Array.from(document.querySelectorAll('input[name="variables"]:checked')).map(cb => cb.value);
+        if (selectedVariables.length === 0) {
+            alert('Please select at least one variable');
+            return;
+        }
+
+        const startDate = document.getElementById('start-date').value;
+        const endDate = document.getElementById('end-date').value;
+        if (!startDate || !endDate) {
+            alert('Please select both start and end dates');
+            return;
+        }
+
+        this.submit();
+    });
+});
+</script>
 {% endblock %}
 {% endblock %}
