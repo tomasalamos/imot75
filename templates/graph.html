@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Imot - Generated Graphs{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top: 4rem;">
+    <div class="container-large">
+        <div class="header-layout">
+            <div class="header-content">
+                <h1 class="heading extra-large">
+                    <span class="text-gradient-overlay">Generated Graphs</span>
+                </h1>
+                <div class="spacer-32"></div>
+                <p class="paragraph large">Visual analysis of your data</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section" style="margin-top: -12rem;">
+    <div class="container-large">
+        <div class="results-container">
+            <div class="results-box">
+                <div class="graphs-container">
+                    {% for graph in graphs %}
+                    <div class="graph-item">
+                        <h3 class="heading small">{{ graph.title }}</h3>
+                        <div class="graph-content">
+                            {{ graph.html|safe }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="form-actions">
+                    <a href="{{ url_for('additionals') }}" class="button w-button secondary">Back to Additional Info</a>
+                    <a href="{{ url_for('results') }}" class="button w-button">Back to Results</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% block extra_scripts %}
+<style>
+.results-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.results-box {
+    background: #1a1a1a;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.graphs-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.graph-item {
+    background: #222;
+    padding: 1.5rem;
+    border-radius: 8px;
+}
+
+.graph-item h3 {
+    margin-bottom: 1rem;
+    color: #FFC44D;
+}
+
+.graph-content {
+    width: 100%;
+    min-height: 400px;
+    background: #fff;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+    gap: 1rem;
+}
+
+.button {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+}
+
+.button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.button.secondary {
+    background: #333;
+    color: #fff;
+}
+
+.button.secondary:hover {
+    background: #444;
+}
+</style>
+{% endblock %}
+{% endblock %} 

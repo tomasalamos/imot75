@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+
+{% block title %}Imot - Additional Information{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top: 4rem;">
+    <div class="container-large">
+        <div class="header-layout">
+            <div class="header-content">
+                <h1 class="heading extra-large">
+                    <span class="text-gradient-overlay">Additional Information</span>
+                </h1>
+                <div class="spacer-32"></div>
+                <p class="paragraph large">Detailed analysis and visualization options</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section" style="margin-top: -12rem;">
+    <div class="container-large">
+        <div class="results-container">
+            <div class="results-box">
+                <!-- PDF Download Section -->
+                <div class="results-section">
+                    <h2 class="heading medium">Detailed Report</h2>
+                    <div class="download-item">
+                        <a href="{{ url_for('download_pdf') }}" class="download-link">
+                            <img src="{{ url_for('static', filename='images/pdf-icon.svg') }}" loading="lazy" alt="PDF icon" class="download-icon"/>
+                            <span>Download Results Report</span>
+                        </a>
+                        <p class="download-description">Comprehensive PDF report with statistical analysis and failure detection details.</p>
+                    </div>
+                </div>
+
+                <!-- Graph Generator Section -->
+                <div class="results-section">
+                    <h2 class="heading medium">Graph Generator</h2>
+                    <form id="graphForm" action="{{ url_for('generate_graphs') }}" method="POST">
+                        <div class="graph-controls">
+                            <div class="graph-type-selector">
+                                <h3 class="heading small">Select Graph Type</h3>
+                                <select name="graph_type" id="graphType" class="select-input" onchange="updateVariableSelection()">
+                                    <option value="">Select a graph type...</option>
+                                    <option value="density">Density Plot</option>
+                                    <option value="correlation">Correlation Matrix</option>
+                                    <option value="simple">Simple Line Plot</option>
+                                    <option value="dual_axis">Dual Axis Plot</option>
+                                    <option value="box">Box Plot</option>
+                                    <option value="scatter">Scatter Plot</option>
+                                    <option value="stacked_bar">Stacked Bar Chart</option>
+                                    <option value="multi_line">Multiple Line Plot</option>
+                                </select>
+                            </div>
+
+                            <div class="variable-selector">
+                                <h3 class="heading small">Select Variables</h3>
+                                <div id="variableContainer">
+                                    <div class="variable-group">
+                                        <select name="variables[]" class="select-input variable-select" multiple>
+                                            {% for var in variables %}
+                                            <option value="{{ var }}">{{ var }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <button type="button" class="add-variable-btn" onclick="addVariableGroup()">+</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="button w-button">Generate Graphs</button>
+                            <a href="{{ url_for('results') }}" class="button w-button secondary">Back to Results</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% block extra_scripts %}
+<style>
+.results-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.results-box {
+    background: #1a1a1a;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.results-section {
+    margin-bottom: 2rem;
+}
+
+.graph-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.graph-type-selector,
+.variable-selector {
+    background: #222;
+    padding: 1.5rem;
+    border-radius: 8px;
+}
+
+.select-input {
+    width: 100%;
+    padding: 0.8rem;
+    background: #333;
+    border: 1px solid #444;
+    border-radius: 4px;
+    color: #fff;
+    margin-top: 0.5rem;
+}
+
+.variable-group {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.variable-select {
+    flex: 1;
+}
+
+.add-variable-btn {
+    padding: 0.5rem 1rem;
+    background: #444;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.add-variable-btn:hover {
+    background: #555;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+    gap: 1rem;
+}
+
+.button {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+}
+
+.button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.button.secondary {
+    background: #333;
+    color: #fff;
+}
+
+.button.secondary:hover {
+    background: #444;
+}
+</style>
+
+<script>
+function updateVariableSelection() {
+    const graphType = document.getElementById('graphType').value;
+    const variableSelects = document.querySelectorAll('.variable-select');
+    
+    // Reset all selects
+    variableSelects.forEach(select => {
+        select.multiple = false;
+        select.selectedIndex = -1;
+    });
+
+    // Configure based on graph type
+    switch(graphType) {
+        case 'density':
+        case 'simple':
+        case 'box':
+            variableSelects[0].multiple = false;
+            break;
+        case 'correlation':
+            variableSelects[0].multiple = true;
+            break;
+        case 'dual_axis':
+        case 'scatter':
+            variableSelects[0].multiple = false;
+            variableSelects[1].multiple = false;
+            break;
+        case 'stacked_bar':
+        case 'multi_line':
+            variableSelects[0].multiple = true;
+            break;
+    }
+}
+
+function addVariableGroup() {
+    const container = document.getElementById('variableContainer');
+    const newGroup = document.createElement('div');
+    newGroup.className = 'variable-group';
+    newGroup.innerHTML = `
+        <select name="variables[]" class="select-input variable-select" multiple>
+            {% for var in variables %}
+            <option value="{{ var }}">{{ var }}</option>
+            {% endfor %}
+        </select>
+        <button type="button" class="add-variable-btn" onclick="removeVariableGroup(this)">-</button>
+    `;
+    container.appendChild(newGroup);
+    updateVariableSelection();
+}
+
+function removeVariableGroup(button) {
+    button.parentElement.remove();
+}
+</script>
+{% endblock %}
+{% endblock %} 
