@@ -28,7 +28,9 @@ app = Flask(__name__,
 app.secret_key = 'supersecretkey123'  # Change to a secure key
 
 # Configuración de la base de datos
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///users.db')
+if app.config['SQLALCHEMY_DATABASE_URI'].startswith('postgres://'):
+    app.config['SQLALCHEMY_DATABASE_URI'] = app.config['SQLALCHEMY_DATABASE_URI'].replace('postgres://', 'postgresql://', 1)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -38,6 +40,8 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(120), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    company = db.Column(db.String(100), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def set_password(self, password):
@@ -119,15 +123,18 @@ def auth():
                 flash('El usuario ya existe', 'error')
             else:
                 email = request.form.get('email', '')
-                if not email:
-                    flash('El email es requerido', 'error')
+                name = request.form.get('name', '')
+                company = request.form.get('company', '')
+                
+                if not all([email, name, company]):
+                    flash('Todos los campos son requeridos', 'error')
                     return redirect(url_for('auth'))
                 
                 if User.query.filter_by(email=email).first():
                     flash('El email ya está registrado', 'error')
                     return redirect(url_for('auth'))
 
-                user = User(username=username, email=email)
+                user = User(username=username, email=email, name=name, company=company)
                 user.set_password(password)
                 db.session.add(user)
                 db.session.commit()

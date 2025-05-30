@@ -39,8 +39,19 @@
                         <input type="password" id="password" name="password" required>
                     </div>
                     
-                    <div class="form-group email-field" style="display: none;">
-                        <input type="email" name="email" class="form-control" placeholder="Email">
+                    <div class="form-group register-fields" style="display: none;">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" placeholder="Your full name">
+                    </div>
+                    
+                    <div class="form-group register-fields" style="display: none;">
+                        <label for="company">Company</label>
+                        <input type="text" id="company" name="company" placeholder="Your company name">
+                    </div>
+                    
+                    <div class="form-group register-fields" style="display: none;">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" placeholder="Your email address">
                     </div>
                     
                     <div class="auth-actions">
@@ -158,6 +169,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const tabs = document.querySelectorAll('.auth-tab');
     const form = document.querySelector('.auth-form');
+    const registerFields = document.querySelectorAll('.register-fields');
     
     tabs.forEach(tab => {
         tab.addEventListener('click', function() {
@@ -166,7 +178,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Add active class to clicked tab
             this.classList.add('active');
             
-            // Show/hide appropriate button
+            // Show/hide appropriate button and fields
             const action = this.dataset.tab;
             const buttons = form.querySelectorAll('button[type="submit"]');
             buttons.forEach(button => {
@@ -176,27 +188,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     button.style.display = 'none';
                 }
             });
+
+            // Show/hide register fields
+            registerFields.forEach(field => {
+                field.style.display = action === 'register' ? 'block' : 'none';
+                const input = field.querySelector('input');
+                if (input) {
+                    input.required = action === 'register';
+                }
+            });
         });
     });
     
     // Trigger click on login tab by default
     document.querySelector('[data-tab="login"]').click();
-
-    const actionRadios = document.querySelectorAll('input[name="action"]');
-    const emailField = document.querySelector('.email-field');
-    const emailInput = document.querySelector('input[name="email"]');
-
-    actionRadios.forEach(radio => {
-        radio.addEventListener('change', function() {
-            if (this.value === 'register') {
-                emailField.style.display = 'block';
-                emailInput.required = true;
-            } else {
-                emailField.style.display = 'none';
-                emailInput.required = false;
-            }
-        });
-    });
 });
 </script>
 {% endblock %}
