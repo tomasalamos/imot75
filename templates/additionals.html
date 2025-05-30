@@ -37,35 +37,28 @@
                 <div class="results-section">
                     <h2 class="heading medium">Graph Generator</h2>
                     <form id="graphForm" action="{{ url_for('generate_graphs') }}" method="POST">
-                        <div class="graph-controls">
-                            <div class="graph-type-selector">
-                                <h3 class="heading small">Select Graph Type</h3>
-                                <select name="graph_type" id="graphType" class="select-input" onchange="updateVariableSelection()">
-                                    <option value="">Select a graph type...</option>
-                                    <option value="density">Density Plot (1 variable)</option>
-                                    <option value="correlation">Correlation Matrix (2+ variables)</option>
-                                    <option value="simple">Simple Line Plot (1 variable)</option>
-                                    <option value="dual_axis">Dual Axis Plot (2 variables)</option>
-                                    <option value="box">Box Plot (1 variable)</option>
-                                    <option value="scatter">Scatter Plot (2 variables)</option>
-                                    <option value="stacked_bar">Stacked Bar Chart (2+ variables)</option>
-                                    <option value="multi_line">Multiple Line Plot (2+ variables)</option>
-                                </select>
-                            </div>
+                        <div class="form-group">
+                            <label for="graph_type">Tipo de Gráfico:</label>
+                            <select name="graph_type" id="graph_type" class="form-control" required>
+                                <option value="density">Density Plot (1 variable)</option>
+                                <option value="correlation">Correlation Matrix (2+ variables)</option>
+                                <option value="simple">Simple Line Plot (1 variable)</option>
+                                <option value="dual_axis">Dual Axis Plot (2 variables)</option>
+                                <option value="box">Box Plot (1 variable)</option>
+                                <option value="scatter">Scatter Plot (2 variables)</option>
+                                <option value="stacked_bar">Stacked Bar Chart (2+ variables)</option>
+                                <option value="multi_line">Multiple Line Plot (2+ variables)</option>
+                            </select>
+                        </div>
 
-                            <div class="variable-selector">
-                                <h3 class="heading small">Select Variables</h3>
-                                <div id="variableContainer">
-                                    <div class="variable-group">
-                                        <select name="variables[]" class="select-input variable-select" multiple>
-                                            {% for var in variables %}
-                                            <option value="{{ var }}">{{ var }}</option>
-                                            {% endfor %}
-                                        </select>
-                                        <button type="button" class="add-variable-btn" onclick="addVariableGroup()">+</button>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="form-group">
+                            <label for="variables">Seleccionar Variables:</label>
+                            <select name="variables[]" id="variables" class="form-control" multiple required>
+                                {% for var in variables %}
+                                <option value="{{ var }}">{{ var }}</option>
+                                {% endfor %}
+                            </select>
+                            <small class="form-text text-muted">Mantén presionado Ctrl (Cmd en Mac) para seleccionar múltiples variables</small>
                         </div>
 
                         <div class="form-actions">
@@ -210,57 +203,106 @@
 </style>
 
 <script>
-function updateVariableSelection() {
-    const graphType = document.getElementById('graphType').value;
-    const variableSelects = document.querySelectorAll('.variable-select');
-    
-    // Reset all selects
-    variableSelects.forEach(select => {
-        select.multiple = false;
-        select.selectedIndex = -1;
-    });
+document.addEventListener('DOMContentLoaded', function() {
+    const graphType = document.getElementById('graph_type');
+    const variablesSelect = document.getElementById('variables');
+    const variables = variablesSelect.options;
 
-    // Configure based on graph type
-    switch(graphType) {
-        case 'density':
-        case 'simple':
-        case 'box':
-            variableSelects[0].multiple = false;
-            break;
-        case 'correlation':
-            variableSelects[0].multiple = true;
-            break;
-        case 'dual_axis':
-        case 'scatter':
-            variableSelects[0].multiple = false;
-            variableSelects[1].multiple = false;
-            break;
-        case 'stacked_bar':
-        case 'multi_line':
-            variableSelects[0].multiple = true;
-            break;
+    function updateVariableSelection() {
+        const selectedType = graphType.value;
+        let requiredCount = 0;
+        let maxCount = variables.length;
+
+        // Determinar el número de variables requeridas según el tipo de gráfico
+        switch(selectedType) {
+            case 'density':
+            case 'simple':
+            case 'box':
+                requiredCount = 1;
+                maxCount = 1;
+                break;
+            case 'dual_axis':
+            case 'scatter':
+                requiredCount = 2;
+                maxCount = 2;
+                break;
+            case 'correlation':
+            case 'stacked_bar':
+            case 'multi_line':
+                requiredCount = 2;
+                maxCount = variables.length;
+                break;
+        }
+
+        // Limpiar selecciones previas si es necesario
+        if (maxCount === 1) {
+            variablesSelect.value = '';
+        }
+
+        // Actualizar el atributo multiple
+        variablesSelect.multiple = maxCount > 1;
+
+        // Actualizar el mensaje de ayuda
+        const helpText = variablesSelect.nextElementSibling;
+        if (requiredCount === 1) {
+            helpText.textContent = 'Selecciona una variable';
+        } else if (maxCount === 2) {
+            helpText.textContent = 'Selecciona exactamente dos variables';
+        } else {
+            helpText.textContent = 'Selecciona al menos dos variables';
+        }
+
+        // Validar la selección actual
+        const selectedCount = variablesSelect.selectedOptions.length;
+        if (selectedCount > maxCount) {
+            // Deseleccionar las opciones extras
+            for (let i = maxCount; i < selectedCount; i++) {
+                variablesSelect.selectedOptions[i].selected = false;
+            }
+        }
     }
-}
 
-function addVariableGroup() {
-    const container = document.getElementById('variableContainer');
-    const newGroup = document.createElement('div');
-    newGroup.className = 'variable-group';
-    newGroup.innerHTML = `
-        <select name="variables[]" class="select-input variable-select" multiple>
-            {% for var in variables %}
-            <option value="{{ var }}">{{ var }}</option>
-            {% endfor %}
-        </select>
-        <button type="button" class="add-variable-btn" onclick="removeVariableGroup(this)">-</button>
-    `;
-    container.appendChild(newGroup);
+    // Actualizar al cargar la página
     updateVariableSelection();
-}
 
-function removeVariableGroup(button) {
-    button.parentElement.remove();
-}
+    // Actualizar cuando cambie el tipo de gráfico
+    graphType.addEventListener('change', updateVariableSelection);
+
+    // Validar la selección cuando cambie
+    variablesSelect.addEventListener('change', function() {
+        const selectedType = graphType.value;
+        const selectedCount = this.selectedOptions.length;
+        let requiredCount = 0;
+        let maxCount = variables.length;
+
+        switch(selectedType) {
+            case 'density':
+            case 'simple':
+            case 'box':
+                requiredCount = 1;
+                maxCount = 1;
+                break;
+            case 'dual_axis':
+            case 'scatter':
+                requiredCount = 2;
+                maxCount = 2;
+                break;
+            case 'correlation':
+            case 'stacked_bar':
+            case 'multi_line':
+                requiredCount = 2;
+                maxCount = variables.length;
+                break;
+        }
+
+        if (selectedCount > maxCount) {
+            // Deseleccionar las opciones extras
+            for (let i = maxCount; i < selectedCount; i++) {
+                this.selectedOptions[i].selected = false;
+            }
+        }
+    });
+});
 </script>
 {% endblock %}
 {% endblock %} 
