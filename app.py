@@ -39,7 +39,7 @@ class User(UserMixin, db.Model):
     __tablename__ = 'users'  # Especificamos el nombre de la tabla
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
-    password_hash = db.Column(db.String(120), nullable=False)
+    password_hash = db.Column(db.String(512), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     name = db.Column(db.String(100), nullable=False)
     company = db.Column(db.String(100), nullable=False)
@@ -68,17 +68,12 @@ def load_user(user_id):
 # Crear la base de datos
 with app.app_context():
     try:
+        # Forzar la eliminación y recreación de las tablas
+        db.drop_all()
         db.create_all()
-        print("Base de datos creada exitosamente")
+        print("Base de datos recreada exitosamente")
     except Exception as e:
-        print(f"Error al crear la base de datos: {str(e)}")
-        # Intentar eliminar la tabla si existe y volver a crearla
-        try:
-            db.drop_all()
-            db.create_all()
-            print("Base de datos recreada exitosamente")
-        except Exception as e:
-            print(f"Error al recrear la base de datos: {str(e)}")
+        print(f"Error al recrear la base de datos: {str(e)}")
 
 # ========================
 # Rutas principales
