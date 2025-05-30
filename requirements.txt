@@ -10,3 +10,4 @@ numpy
 matplotlib
 seaborn
 flask-sqlalchemy
+psycopg2-binary
