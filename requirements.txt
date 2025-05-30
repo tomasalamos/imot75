@@ -7,3 +7,6 @@ werkzeug
 plotly
 fpdf
 numpy
+matplotlib
+seaborn
+flask-sqlalchemy==3.1.1

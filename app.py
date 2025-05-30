@@ -1,6 +1,6 @@
 import os
 import warnings
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory, session, flash
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory, session, flash, send_file
 import pandas as pd
 import numpy as np
 from datetime import datetime
@@ -13,6 +13,10 @@ from plotly.subplots import make_subplots
 import plotly.io as pio
 from fpdf import FPDF
 import json
+import matplotlib
+matplotlib.use('Agg')  # Configurar el backend no interactivo
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 warnings.filterwarnings('ignore')
 
@@ -260,6 +264,12 @@ def process():
         selected_vars = request.form.getlist('variables')
         negative_vars = request.form.getlist('negative_variables')
 
+        # Guardar datos en la sesión
+        session['selected_vars'] = selected_vars
+        session['negative_vars'] = negative_vars
+        session['start_date'] = df['date'].min().strftime('%Y-%m-%d %H:%M:%S')
+        session['end_date'] = df['date'].max().strftime('%Y-%m-%d %H:%M:%S')
+
         df_filtered = df.sort_values('date')
         df_to_save = df_filtered[['date'] + selected_vars]
 
@@ -288,11 +298,7 @@ def process():
             for failure in detected_failures:
                 f.write(f"{failure['date']},{failure['variable']},{failure['original_value']},{failure['expected_value']},{failure['error_type']}\n")
 
-        return render_template('results.html',
-                           selected_vars=selected_vars,
-                           negative_vars=negative_vars,
-                           start=df['date'].min().strftime('%Y-%m-%d %H:%M:%S'),
-                           end=df['date'].max().strftime('%Y-%m-%d %H:%M:%S'))
+        return redirect(url_for('results'))
                            
     except Exception as e:
         flash(f'Error processing file: {str(e)}', 'error')
@@ -423,8 +429,18 @@ def download_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
 
 @app.route('/additionals')
-@login_required
 def additionals():
+    if 'selected_vars' not in session:
+        return redirect(url_for('upload'))
+    
+    # Obtener las variables seleccionadas de la sesión
+    selected_vars = session.get('selected_vars', [])
+    
+    return render_template('additionals.html', variables=selected_vars)
+
+@app.route('/results')
+@login_required
+def results():
     if 'uploaded_file' not in session:
         flash('Please upload a file first', 'error')
         return redirect(url_for('upload'))
@@ -433,48 +449,57 @@ def additionals():
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], session['uploaded_file'])
         df = pd.read_csv(filepath)
         
-        # Obtener las variables numéricas
-        variables = df.select_dtypes(include=['float64', 'int64']).columns.tolist()
-        
-        return render_template('additionals.html', variables=variables)
+        return render_template('results.html',
+                           selected_vars=session.get('selected_vars', []),
+                           negative_vars=session.get('negative_vars', []),
+                           start=session.get('start_date', ''),
+                           end=session.get('end_date', ''))
     except Exception as e:
         flash(f'Error processing file: {str(e)}', 'error')
         return redirect(url_for('upload'))
 
 @app.route('/download_pdf')
-@login_required
 def download_pdf():
-    if 'uploaded_file' not in session:
-        flash('Please upload a file first', 'error')
+    if 'selected_vars' not in session:
         return redirect(url_for('upload'))
+    
+    # Obtener las variables seleccionadas de la sesión
+    selected_vars = session.get('selected_vars', [])
+    
+    # Generar el PDF solo con las variables seleccionadas
+    pdf_path = generate_pdf_report(selected_vars)
+    return send_file(pdf_path, as_attachment=True, download_name='analysis_report.pdf')
+
+def generate_pdf_report(selected_vars):
+    if 'uploaded_file' not in session:
+        raise Exception('No file uploaded')
         
-    try:
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], session['uploaded_file'])
-        df = pd.read_csv(filepath)
-        
-        # Crear el PDF
-        pdf = FPDF()
-        pdf.add_page()
-        
-        # Título
-        pdf.set_font('Arial', 'B', 16)
-        pdf.cell(0, 10, 'Data Analysis Report', 0, 1, 'C')
-        pdf.ln(10)
-        
-        # Fechas
-        pdf.set_font('Arial', 'B', 12)
-        pdf.cell(0, 10, 'Date Range:', 0, 1)
-        pdf.set_font('Arial', '', 12)
-        pdf.cell(0, 10, f'From: {df["date"].min()}', 0, 1)
-        pdf.cell(0, 10, f'To: {df["date"].max()}', 0, 1)
-        pdf.ln(10)
-        
-        # Variables y estadísticas
-        pdf.set_font('Arial', 'B', 12)
-        pdf.cell(0, 10, 'Variable Statistics:', 0, 1)
-        
-        numeric_columns = df.select_dtypes(include=['float64', 'int64']).columns
-        for column in numeric_columns:
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], session['uploaded_file'])
+    df = pd.read_csv(filepath)
+    
+    # Crear el PDF
+    pdf = FPDF()
+    pdf.add_page()
+    
+    # Título
+    pdf.set_font('Arial', 'B', 16)
+    pdf.cell(0, 10, 'Data Analysis Report', 0, 1, 'C')
+    pdf.ln(10)
+    
+    # Fechas
+    pdf.set_font('Arial', 'B', 12)
+    pdf.cell(0, 10, 'Date Range:', 0, 1)
+    pdf.set_font('Arial', '', 12)
+    pdf.cell(0, 10, f'From: {df["date"].min()}', 0, 1)
+    pdf.cell(0, 10, f'To: {df["date"].max()}', 0, 1)
+    pdf.ln(10)
+    
+    # Variables y estadísticas (solo las seleccionadas)
+    pdf.set_font('Arial', 'B', 12)
+    pdf.cell(0, 10, 'Variable Statistics:', 0, 1)
+    
+    for column in selected_vars:
+        if column in df.columns:
             pdf.set_font('Arial', 'B', 12)
             pdf.cell(0, 10, f'\n{column}:', 0, 1)
             pdf.set_font('Arial', '', 12)
@@ -485,135 +510,179 @@ def download_pdf():
             pdf.cell(0, 10, f'Std Dev: {stats["std"]:.2f}', 0, 1)
             pdf.cell(0, 10, f'Min: {stats["min"]:.2f}', 0, 1)
             pdf.cell(0, 10, f'Max: {stats["max"]:.2f}', 0, 1)
-        
-        # Fechas faltantes
-        pdf.ln(10)
-        pdf.set_font('Arial', 'B', 12)
-        pdf.cell(0, 10, 'Missing Dates:', 0, 1)
-        pdf.set_font('Arial', '', 12)
-        
-        date_range = pd.date_range(start=df['date'].min(), end=df['date'].max(), freq='D')
-        missing_dates = date_range.difference(df['date'])
-        if len(missing_dates) > 0:
-            for date in missing_dates:
-                pdf.cell(0, 10, str(date.date()), 0, 1)
+    
+    # Fechas faltantes
+    pdf.ln(10)
+    pdf.set_font('Arial', 'B', 12)
+    pdf.cell(0, 10, 'Missing Dates:', 0, 1)
+    pdf.set_font('Arial', '', 12)
+    
+    date_range = pd.date_range(start=df['date'].min(), end=df['date'].max(), freq='D')
+    missing_dates = date_range.difference(df['date'])
+    if len(missing_dates) > 0:
+        for date in missing_dates:
+            pdf.cell(0, 10, str(date.date()), 0, 1)
+    else:
+        pdf.cell(0, 10, 'No missing dates found', 0, 1)
+    
+    # Fallas detectadas (detalle completo)
+    pdf.ln(10)
+    pdf.set_font('Arial', 'B', 12)
+    pdf.cell(0, 10, 'Detected Failures:', 0, 1)
+    pdf.set_font('Arial', '', 12)
+    
+    # Leer el archivo de fallas detectadas
+    failures_path = os.path.join(app.config['UPLOAD_FOLDER'], 'detected_failures.csv')
+    if os.path.exists(failures_path):
+        failures_df = pd.read_csv(failures_path)
+        if not failures_df.empty:
+            # Agrupar fallas por variable
+            for var in selected_vars:
+                var_failures = failures_df[failures_df['variable'] == var]
+                if not var_failures.empty:
+                    pdf.set_font('Arial', 'B', 12)
+                    pdf.cell(0, 10, f'\n{var}:', 0, 1)
+                    pdf.set_font('Arial', '', 12)
+                    
+                    for _, failure in var_failures.iterrows():
+                        pdf.cell(0, 10, f'Date: {failure["date"]}', 0, 1)
+                        pdf.cell(0, 10, f'Original Value: {failure["original_value"]:.2f}', 0, 1)
+                        pdf.cell(0, 10, f'Expected Value: {failure["expected_value"]:.2f}', 0, 1)
+                        pdf.cell(0, 10, f'Error Type: {failure["error_type"]}', 0, 1)
+                        pdf.ln(5)
         else:
-            pdf.cell(0, 10, 'No missing dates found', 0, 1)
-        
-        # Fallas detectadas
-        pdf.ln(10)
-        pdf.set_font('Arial', 'B', 12)
-        pdf.cell(0, 10, 'Detected Failures:', 0, 1)
-        pdf.set_font('Arial', '', 12)
-        
-        negative_vars = calculate_negative_percentages(df)
-        for var, percentage in negative_vars.items():
-            pdf.cell(0, 10, f'{var}: {percentage:.2f}% negative values', 0, 1)
-        
-        # Guardar el PDF
-        pdf_path = os.path.join(app.config['UPLOAD_FOLDER'], 'results.pdf')
-        pdf.output(pdf_path)
-        
-        return send_from_directory(app.config['UPLOAD_FOLDER'], 'results.pdf', as_attachment=True)
-        
-    except Exception as e:
-        flash(f'Error generating PDF: {str(e)}', 'error')
-        return redirect(url_for('additionals'))
+            pdf.cell(0, 10, 'No failures detected', 0, 1)
+    else:
+        pdf.cell(0, 10, 'No failures detected', 0, 1)
+    
+    # Guardar el PDF
+    pdf_path = os.path.join(app.config['UPLOAD_FOLDER'], 'analysis_report.pdf')
+    pdf.output(pdf_path)
+    
+    return pdf_path
 
 @app.route('/generate_graphs', methods=['POST'])
-@login_required
 def generate_graphs():
-    if 'uploaded_file' not in session:
-        flash('Please upload a file first', 'error')
+    if 'uploaded_file' not in session or 'selected_vars' not in session:
         return redirect(url_for('upload'))
-        
+    
     try:
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], session['uploaded_file'])
         df = pd.read_csv(filepath)
         df['date'] = pd.to_datetime(df['date'])
         
-        graph_type = request.form.get('graph_type')
-        variables = request.form.getlist('variables[]')
+        # Obtener las variables seleccionadas de la sesión
+        selected_vars = session.get('selected_vars', [])
         
-        graphs = []
+        # Obtener el tipo de gráfico y las variables seleccionadas del formulario
+        graph_type = request.form.get('graph_type')
+        selected_variables = request.form.getlist('variables[]')
+        
+        # Verificar que las variables seleccionadas estén en la lista de variables permitidas
+        selected_variables = [var for var in selected_variables if var in selected_vars]
+        
+        if not selected_variables:
+            flash('Please select at least one variable', 'error')
+            return redirect(url_for('additionals'))
+        
+        # Limpiar cualquier figura existente
+        plt.close('all')
+        
+        # Generar el gráfico según el tipo seleccionado
+        fig = plt.figure(figsize=(12, 6))
         
         if graph_type == 'density':
-            for var in variables:
-                fig = px.histogram(df, x=var, nbins=50, title=f'Density Plot - {var}')
-                graphs.append({
-                    'title': f'Density Plot - {var}',
-                    'html': fig.to_html(full_html=False)
-                })
-                
+            if len(selected_variables) != 1:
+                flash('Density plot requires exactly one variable', 'error')
+                return redirect(url_for('additionals'))
+            sns.kdeplot(data=df[selected_variables[0]])
+            plt.title(f'Density Plot - {selected_variables[0]}')
+            
         elif graph_type == 'correlation':
-            corr_matrix = df[variables].corr()
-            fig = px.imshow(corr_matrix, title='Correlation Matrix')
-            graphs.append({
-                'title': 'Correlation Matrix',
-                'html': fig.to_html(full_html=False)
-            })
+            if len(selected_variables) < 2:
+                flash('Correlation matrix requires at least two variables', 'error')
+                return redirect(url_for('additionals'))
+            corr_matrix = df[selected_variables].corr()
+            sns.heatmap(corr_matrix, annot=True, cmap='coolwarm')
+            plt.title('Correlation Matrix')
             
         elif graph_type == 'simple':
-            for var in variables:
-                fig = px.line(df, x='date', y=var, title=f'Time Series - {var}')
-                graphs.append({
-                    'title': f'Time Series - {var}',
-                    'html': fig.to_html(full_html=False)
-                })
-                
+            if len(selected_variables) != 1:
+                flash('Simple line plot requires exactly one variable', 'error')
+                return redirect(url_for('additionals'))
+            plt.plot(df['date'], df[selected_variables[0]])
+            plt.title(f'Simple Line Plot - {selected_variables[0]}')
+            plt.xticks(rotation=45)
+            
         elif graph_type == 'dual_axis':
-            if len(variables) >= 2:
-                fig = make_subplots(specs=[[{"secondary_y": True}]])
-                fig.add_trace(
-                    go.Scatter(x=df['date'], y=df[variables[0]], name=variables[0]),
-                    secondary_y=False
-                )
-                fig.add_trace(
-                    go.Scatter(x=df['date'], y=df[variables[1]], name=variables[1]),
-                    secondary_y=True
-                )
-                fig.update_layout(title=f'Dual Axis Plot - {variables[0]} vs {variables[1]}')
-                graphs.append({
-                    'title': f'Dual Axis Plot - {variables[0]} vs {variables[1]}',
-                    'html': fig.to_html(full_html=False)
-                })
-                
+            if len(selected_variables) != 2:
+                flash('Dual axis plot requires exactly two variables', 'error')
+                return redirect(url_for('additionals'))
+            ax1 = plt.gca()
+            ax2 = ax1.twinx()
+            ax1.plot(df['date'], df[selected_variables[0]], 'b-')
+            ax2.plot(df['date'], df[selected_variables[1]], 'r-')
+            ax1.set_xlabel('Date')
+            ax1.set_ylabel(selected_variables[0], color='b')
+            ax2.set_ylabel(selected_variables[1], color='r')
+            plt.title('Dual Axis Plot')
+            plt.xticks(rotation=45)
+            
         elif graph_type == 'box':
-            for var in variables:
-                fig = px.box(df, y=var, title=f'Box Plot - {var}')
-                graphs.append({
-                    'title': f'Box Plot - {var}',
-                    'html': fig.to_html(full_html=False)
-                })
-                
+            if len(selected_variables) != 1:
+                flash('Box plot requires exactly one variable', 'error')
+                return redirect(url_for('additionals'))
+            sns.boxplot(data=df[selected_variables[0]])
+            plt.title(f'Box Plot - {selected_variables[0]}')
+            
         elif graph_type == 'scatter':
-            if len(variables) >= 2:
-                fig = px.scatter(df, x=variables[0], y=variables[1], title=f'Scatter Plot - {variables[0]} vs {variables[1]}')
-                graphs.append({
-                    'title': f'Scatter Plot - {variables[0]} vs {variables[1]}',
-                    'html': fig.to_html(full_html=False)
-                })
-                
+            if len(selected_variables) != 2:
+                flash('Scatter plot requires exactly two variables', 'error')
+                return redirect(url_for('additionals'))
+            plt.scatter(df[selected_variables[0]], df[selected_variables[1]])
+            plt.xlabel(selected_variables[0])
+            plt.ylabel(selected_variables[1])
+            plt.title('Scatter Plot')
+            
         elif graph_type == 'stacked_bar':
-            fig = px.bar(df, x='date', y=variables, title='Stacked Bar Chart')
-            graphs.append({
-                'title': 'Stacked Bar Chart',
-                'html': fig.to_html(full_html=False)
-            })
+            if len(selected_variables) < 2:
+                flash('Stacked bar chart requires at least two variables', 'error')
+                return redirect(url_for('additionals'))
+            df[selected_variables].plot(kind='bar', stacked=True)
+            plt.title('Stacked Bar Chart')
+            plt.xticks(rotation=45)
             
         elif graph_type == 'multi_line':
-            fig = px.line(df, x='date', y=variables, title='Multiple Line Plot')
-            graphs.append({
-                'title': 'Multiple Line Plot',
-                'html': fig.to_html(full_html=False)
-            })
+            if len(selected_variables) < 2:
+                flash('Multiple line plot requires at least two variables', 'error')
+                return redirect(url_for('additionals'))
+            for var in selected_variables:
+                plt.plot(df['date'], df[var], label=var)
+            plt.title('Multiple Line Plot')
+            plt.legend()
+            plt.xticks(rotation=45)
+            
+        else:
+            flash('Invalid graph type selected', 'error')
+            return redirect(url_for('additionals'))
         
-        return render_template('graph.html', graphs=graphs)
+        # Guardar el gráfico en la carpeta static
+        static_folder = os.path.join(app.root_path, 'static')
+        graph_path = os.path.join(static_folder, 'generated_graph.png')
+        plt.tight_layout()
+        plt.savefig(graph_path)
+        
+        # Limpiar la figura actual
+        plt.close(fig)
+        
+        return render_template('graph.html')
         
     except Exception as e:
-        flash(f'Error generating graphs: {str(e)}', 'error')
+        # Asegurarse de limpiar cualquier figura en caso de error
+        plt.close('all')
+        flash(f'Error generating graph: {str(e)}', 'error')
         return redirect(url_for('additionals'))
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 10000)))
-
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=port)

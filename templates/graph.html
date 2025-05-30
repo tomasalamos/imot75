@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Imot - Generated Graphs{% endblock %}
+{% block title %}Imot - Generated Graph{% endblock %}
 
 {% block content %}
 <section class="section" style="padding-top: 4rem;">
@@ -8,10 +8,10 @@
         <div class="header-layout">
             <div class="header-content">
                 <h1 class="heading extra-large">
-                    <span class="text-gradient-overlay">Generated Graphs</span>
+                    <span class="text-gradient-overlay">Generated Graph</span>
                 </h1>
                 <div class="spacer-32"></div>
-                <p class="paragraph large">Visual analysis of your data</p>
+                <p class="paragraph large">Visualization result</p>
             </div>
         </div>
     </div>
@@ -21,20 +21,16 @@
     <div class="container-large">
         <div class="results-container">
             <div class="results-box">
-                <div class="graphs-container">
-                    {% for graph in graphs %}
+                <div class="graph-container">
                     <div class="graph-item">
-                        <h3 class="heading small">{{ graph.title }}</h3>
                         <div class="graph-content">
-                            {{ graph.html|safe }}
+                            <img src="{{ url_for('static', filename='generated_graph.png') }}" alt="Generated Graph" style="width: 100%; height: auto;">
                         </div>
                     </div>
-                    {% endfor %}
                 </div>
 
                 <div class="form-actions">
-                    <a href="{{ url_for('additionals') }}" class="button w-button secondary">Back to Additional Info</a>
-                    <a href="{{ url_for('results') }}" class="button w-button">Back to Results</a>
+                    <a href="{{ url_for('additionals') }}" class="button w-button secondary">Back to Graphs Generator</a>
                 </div>
             </div>
         </div>
@@ -55,10 +51,7 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.graphs-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-    gap: 2rem;
+.graph-container {
     margin-bottom: 2rem;
 }
 
@@ -68,17 +61,12 @@
     border-radius: 8px;
 }
 
-.graph-item h3 {
-    margin-bottom: 1rem;
-    color: #FFC44D;
-}
-
 .graph-content {
     width: 100%;
-    min-height: 400px;
     background: #fff;
     border-radius: 4px;
     overflow: hidden;
+    padding: 1rem;
 }
 
 .form-actions {

@@ -8,7 +8,7 @@
         <div class="header-layout">
             <div class="header-content">
                 <h1 class="heading extra-large">
-                    <span class="text-gradient-overlay">Additional Information</span>
+                    <span class="text-gradient-overlay">Graphs and Report Generator</span>
                 </h1>
                 <div class="spacer-32"></div>
                 <p class="paragraph large">Detailed analysis and visualization options</p>
@@ -26,7 +26,7 @@
                     <h2 class="heading medium">Detailed Report</h2>
                     <div class="download-item">
                         <a href="{{ url_for('download_pdf') }}" class="download-link">
-                            <img src="{{ url_for('static', filename='images/pdf-icon.svg') }}" loading="lazy" alt="PDF icon" class="download-icon"/>
+                            <img src="{{ url_for('static', filename='images/pdf-icon.svg') }}" loading="lazy" alt="PDF icon" class="download-icon" style="width: 24px; height: 24px;"/>
                             <span>Download Results Report</span>
                         </a>
                         <p class="download-description">Comprehensive PDF report with statistical analysis and failure detection details.</p>
@@ -42,14 +42,14 @@
                                 <h3 class="heading small">Select Graph Type</h3>
                                 <select name="graph_type" id="graphType" class="select-input" onchange="updateVariableSelection()">
                                     <option value="">Select a graph type...</option>
-                                    <option value="density">Density Plot</option>
-                                    <option value="correlation">Correlation Matrix</option>
-                                    <option value="simple">Simple Line Plot</option>
-                                    <option value="dual_axis">Dual Axis Plot</option>
-                                    <option value="box">Box Plot</option>
-                                    <option value="scatter">Scatter Plot</option>
-                                    <option value="stacked_bar">Stacked Bar Chart</option>
-                                    <option value="multi_line">Multiple Line Plot</option>
+                                    <option value="density">Density Plot (1 variable)</option>
+                                    <option value="correlation">Correlation Matrix (2+ variables)</option>
+                                    <option value="simple">Simple Line Plot (1 variable)</option>
+                                    <option value="dual_axis">Dual Axis Plot (2 variables)</option>
+                                    <option value="box">Box Plot (1 variable)</option>
+                                    <option value="scatter">Scatter Plot (2 variables)</option>
+                                    <option value="stacked_bar">Stacked Bar Chart (2+ variables)</option>
+                                    <option value="multi_line">Multiple Line Plot (2+ variables)</option>
                                 </select>
                             </div>
 
@@ -69,8 +69,8 @@
                         </div>
 
                         <div class="form-actions">
-                            <button type="submit" class="button w-button">Generate Graphs</button>
                             <a href="{{ url_for('results') }}" class="button w-button secondary">Back to Results</a>
+                            <button type="submit" class="button w-button">Generate Graphs</button>
                         </div>
                     </form>
                 </div>
@@ -170,6 +170,42 @@
 
 .button.secondary:hover {
     background: #444;
+}
+
+.download-item {
+    background: #222;
+    padding: 1.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.download-item:hover {
+    background: #2a2a2a;
+    transform: translateY(-2px);
+}
+
+.download-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: #fff;
+    text-decoration: none;
+    margin-bottom: 0.8rem;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.download-icon {
+    width: 24px;
+    height: 24px;
+    color: #FFC44D;
+}
+
+.download-description {
+    color: #888;
+    font-size: 0.9rem;
+    margin: 0;
+    padding-left: 2.5rem;
 }
 </style>
 

@@ -22,7 +22,7 @@
         <div class="results-container">
             <div class="results-box">
                 <div class="results-section">
-                    <h2 class="heading medium">Processing Summary</h2>
+                    <h2 class="heading medium" style="margin-bottom: 3rem;">Processing Summary</h2>
                     <div class="results-grid">
                         <div class="result-item">
                             <h3 class="heading small">Processed Variables</h3>
@@ -49,22 +49,9 @@
                 </div>
 
                 <div class="results-section">
-                    <h2 class="heading medium">Generated Files</h2>
+                    <h2 class="heading medium" style="margin-bottom: 1rem;">Generated Files</h2>
+                    <p class="paragraph" style="margin-bottom: 2rem;">Click on the titles to download the files</p>
                     <div class="download-grid">
-                        <div class="download-item">
-                            <a href="{{ url_for('download_file', filename='filtered_data.csv') }}" class="download-link">
-                                <img src="{{ url_for('static', filename='images/chart-spline.svg') }}" loading="lazy" alt="Download icon" class="download-icon"/>
-                                <span>Filtered Data</span>
-                            </a>
-                            <p class="download-description">Records with invalid columns and negative values not allowed removed.</p>
-                        </div>
-                        <div class="download-item">
-                            <a href="{{ url_for('download_file', filename='complete_data.csv') }}" class="download-link">
-                                <img src="{{ url_for('static', filename='images/chart-spline.svg') }}" loading="lazy" alt="Download icon" class="download-icon"/>
-                                <span>Complete Data</span>
-                            </a>
-                            <p class="download-description">Data with completed dates and temporal integrity ensured.</p>
-                        </div>
                         <div class="download-item">
                             <a href="{{ url_for('download_file', filename='corrected_data.csv') }}" class="download-link">
                                 <img src="{{ url_for('static', filename='images/chart-spline.svg') }}" loading="lazy" alt="Download icon" class="download-icon"/>
@@ -79,13 +66,19 @@
                             </a>
                             <p class="download-description">Errors or failures found during automatic analysis.</p>
                         </div>
+                        <div class="download-item">
+                            <a href="{{ url_for('download_file', filename='missing_dates.txt') }}" class="download-link">
+                                <img src="{{ url_for('static', filename='images/chart-spline.svg') }}" loading="lazy" alt="Download icon" class="download-icon"/>
+                                <span>Missing Dates</span>
+                            </a>
+                            <p class="download-description">List of dates with missing data points.</p>
+                        </div>
                     </div>
                 </div>
 
                 <div class="form-actions">
-                    <a href="{{ url_for('upload') }}" class="button w-button secondary">Process Another File</a>
-                    <a href="{{ url_for('additionals') }}" class="button w-button">More Info</a>
-                    <a href="{{ url_for('index') }}" class="button w-button">Back to Home</a>
+                    <a href="{{ url_for('upload') }}" class="button w-button secondary">Back to Home</a>
+                    <a href="{{ url_for('additionals') }}" class="button w-button">More Information</a>
                 </div>
             </div>
         </div>
@@ -169,6 +162,8 @@
     color: #fff;
     text-decoration: none;
     margin-bottom: 0.8rem;
+    font-weight: bold;
+    font-size: 1.1rem;
 }
 
 .download-icon {
