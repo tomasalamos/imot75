@@ -17,6 +17,8 @@ import matplotlib
 matplotlib.use('Agg')  # Configurar el backend no interactivo
 import matplotlib.pyplot as plt
 import seaborn as sns
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
 
 warnings.filterwarnings('ignore')
 
@@ -24,6 +26,25 @@ app = Flask(__name__,
     static_url_path='',
     static_folder='static')
 app.secret_key = 'supersecretkey123'  # Change to a secure key
+
+# Configuración de la base de datos
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+
+# Modelo de Usuario
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    password_hash = db.Column(db.String(120), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
 
 UPLOAD_FOLDER = 'upload'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -35,13 +56,13 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'auth'
 
-class User(UserMixin):
-    def __init__(self, id):
-        self.id = id
-
 @login_manager.user_loader
 def load_user(user_id):
-    return User(user_id)
+    return User.query.get(int(user_id))
+
+# Crear la base de datos
+with app.app_context():
+    db.create_all()
 
 # ========================
 # Rutas principales
@@ -78,53 +99,47 @@ def contact():
 # Login and authentication
 # ========================
 
-USERS_FILE = 'users.txt'
-
-def load_users():
-    users = {}
-    if os.path.exists(USERS_FILE):
-        with open(USERS_FILE, 'r') as f:
-            for line in f:
-                if line.strip():  # Skip empty lines
-                    username, password = line.strip().split(':')
-                    users[username] = password
-    return users
-
-def save_users(users):
-    with open(USERS_FILE, 'w') as f:
-        for username, password in users.items():
-            f.write(f"{username}:{password}\n")
-
 @app.route('/auth', methods=['GET', 'POST'])
 def auth():
-    users = load_users()
-
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
         action = request.form['action']
 
         if action == 'login':
-            if users.get(username) == password:
-                session['user'] = username
+            user = User.query.filter_by(username=username).first()
+            if user and user.check_password(password):
+                login_user(user)
                 return redirect(url_for('upload'))
             else:
                 flash('Usuario o contraseña incorrectos', 'error')
 
         elif action == 'register':
-            if username in users:
+            if User.query.filter_by(username=username).first():
                 flash('El usuario ya existe', 'error')
             else:
-                users[username] = password
-                save_users(users)
+                email = request.form.get('email', '')
+                if not email:
+                    flash('El email es requerido', 'error')
+                    return redirect(url_for('auth'))
+                
+                if User.query.filter_by(email=email).first():
+                    flash('El email ya está registrado', 'error')
+                    return redirect(url_for('auth'))
+
+                user = User(username=username, email=email)
+                user.set_password(password)
+                db.session.add(user)
+                db.session.commit()
                 flash('Usuario registrado exitosamente. Ahora puedes iniciar sesión.', 'success')
 
     return render_template('auth.html')
 
 @app.route('/logout')
+@login_required
 def logout():
-    session.pop('user', None)
-    flash('You have logged out', 'info')
+    logout_user()
+    flash('Has cerrado sesión', 'info')
     return redirect(url_for('auth'))
 
 def login_required(f):

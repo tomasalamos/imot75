@@ -39,6 +39,10 @@
                         <input type="password" id="password" name="password" required>
                     </div>
                     
+                    <div class="form-group email-field" style="display: none;">
+                        <input type="email" name="email" class="form-control" placeholder="Email">
+                    </div>
+                    
                     <div class="auth-actions">
                         <button type="submit" name="action" value="login" class="button w-button">Sign In</button>
                         <button type="submit" name="action" value="register" class="button w-button">Create Account</button>
@@ -177,6 +181,22 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Trigger click on login tab by default
     document.querySelector('[data-tab="login"]').click();
+
+    const actionRadios = document.querySelectorAll('input[name="action"]');
+    const emailField = document.querySelector('.email-field');
+    const emailInput = document.querySelector('input[name="email"]');
+
+    actionRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'register') {
+                emailField.style.display = 'block';
+                emailInput.required = true;
+            } else {
+                emailField.style.display = 'none';
+                emailInput.required = false;
+            }
+        });
+    });
 });
 </script>
 {% endblock %}
